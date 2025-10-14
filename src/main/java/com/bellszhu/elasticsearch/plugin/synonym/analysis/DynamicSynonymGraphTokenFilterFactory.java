@@ -1,24 +1,26 @@
 package com.bellszhu.elasticsearch.plugin.synonym.analysis;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.function.Function;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
+import org.elasticsearch.client.internal.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
+import org.elasticsearch.index.IndexService;
+import org.elasticsearch.index.IndexSettings;
 import org.elasticsearch.index.analysis.AnalysisMode;
 import org.elasticsearch.index.analysis.CharFilterFactory;
 import org.elasticsearch.index.analysis.TokenFilterFactory;
 import org.elasticsearch.index.analysis.TokenizerFactory;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
+
 public class DynamicSynonymGraphTokenFilterFactory extends DynamicSynonymTokenFilterFactory {
 
-    public DynamicSynonymGraphTokenFilterFactory(
-            Environment env, String name, Settings settings
+    public DynamicSynonymGraphTokenFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings
     ) throws IOException {
-        super(env, name, settings);
+        super(indexSettings, env, name, settings);
     }
 
     @Override
@@ -30,6 +32,7 @@ public class DynamicSynonymGraphTokenFilterFactory extends DynamicSynonymTokenFi
 
     @Override
     public TokenFilterFactory getChainAwareTokenFilterFactory(
+            IndexService.IndexCreationContext context,
             TokenizerFactory tokenizer, List<CharFilterFactory> charFilters,
             List<TokenFilterFactory> previousTokenFilters,
             Function<String, TokenFilterFactory> allFilters

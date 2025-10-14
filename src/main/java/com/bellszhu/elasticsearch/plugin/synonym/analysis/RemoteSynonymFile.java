@@ -143,7 +143,7 @@ public class RemoteSynonymFile implements SynonymFile {
                 if (response.getEntity().getContentType().contains("charset=")) {
                     String contentType = response.getEntity().getContentType();
                     charset = contentType.substring(contentType
-                            .lastIndexOf('=') + 1);
+                                                            .lastIndexOf('=') + 1);
                 }
 
                 br = new BufferedReader(new InputStreamReader(response
@@ -184,7 +184,7 @@ public class RemoteSynonymFile implements SynonymFile {
 
     @Override
     public boolean isNeedReloadSynonymMap() {
-        logger.info("==== isNeedReloadSynonymMap ====");
+        // logger.info("==== isNeedReloadSynonymMap ====");
         RequestConfig rc = RequestConfig.custom()
                 .setConnectionRequestTimeout(10 * 1000, TimeUnit.MILLISECONDS)
                 .setResponseTimeout(15 * 1000, TimeUnit.MILLISECONDS)
@@ -208,7 +208,7 @@ public class RemoteSynonymFile implements SynonymFile {
             if (statusLine.getStatusCode() == 200) { // 返回200 才做操作
                 if (!response.getLastHeader(LAST_MODIFIED_HEADER).getValue()
                         .equalsIgnoreCase(lastModified)
-                        || !response.getLastHeader(ETAG_HEADER).getValue()
+                    || !response.getLastHeader(ETAG_HEADER).getValue()
                         .equalsIgnoreCase(eTags)) {
 
                     lastModified = response.getLastHeader(LAST_MODIFIED_HEADER) == null ? null
