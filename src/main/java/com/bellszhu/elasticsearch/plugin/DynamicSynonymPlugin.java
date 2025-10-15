@@ -28,7 +28,6 @@ public class DynamicSynonymPlugin extends Plugin implements AnalysisPlugin {
         client = services.client();
 
         DynamicSynonymTokenFilterFactory.client = client;
-        DynamicSynonymGraphTokenFilterFactory.client = client;
         return Collections.emptyList();
     }
 
