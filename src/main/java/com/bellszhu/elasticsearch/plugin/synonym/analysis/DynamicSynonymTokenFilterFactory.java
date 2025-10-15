@@ -13,7 +13,6 @@ import org.elasticsearch.client.internal.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexService;
-import org.elasticsearch.index.IndexSettings;
 import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
 import org.elasticsearch.index.analysis.AnalysisMode;
 import org.elasticsearch.index.analysis.CharFilterFactory;
@@ -36,7 +35,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author bellszhu
@@ -78,6 +76,10 @@ public class DynamicSynonymTokenFilterFactory extends AbstractTokenFilterFactory
     static {
         synonymExpiredSchedule.scheduleAtFixedRate(() -> {
             try {
+                if (client == null) {
+                    logger.warn("waiting for admin client init.");
+                    return;
+                }
                 GetSettingsRequest request = new GetSettingsRequest().indices("_all");
                 client.admin().indices().getSettings(request, new ActionListener<>() {
                     @Override
@@ -122,10 +124,10 @@ public class DynamicSynonymTokenFilterFactory extends AbstractTokenFilterFactory
                 logger.error("clear expired synonym location failed", e);
             }
 
-        }, 0, 60, TimeUnit.SECONDS);
+        }, 10, 60, TimeUnit.SECONDS);
     }
 
-    public DynamicSynonymTokenFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) throws IOException {
+    public DynamicSynonymTokenFilterFactory(Environment env, String name, Settings settings) throws IOException {
         super(name, settings);
         this.location = settings.get("synonyms_path");
         if (this.location == null) {
@@ -257,6 +259,7 @@ public class DynamicSynonymTokenFilterFactory extends AbstractTokenFilterFactory
             try {
                 // logger.info("===== Monitor =======");
                 if (synonymFile.isNeedReloadSynonymMap()) {
+                    logger.info("reloading synonym map");
                     synonymMap = synonymFile.reloadSynonymMap();
                     for (AbsSynonymFilter dynamicSynonymFilter : dynamicSynonymFilters.keySet()) {
                         dynamicSynonymFilter.update(synonymMap);

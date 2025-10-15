@@ -21,22 +21,19 @@ import static org.elasticsearch.plugins.AnalysisPlugin.requiresAnalysisSettings;
  */
 public class DynamicSynonymPlugin extends Plugin implements AnalysisPlugin {
 
-    private Client client;
 
     @Override
     public Collection<?> createComponents(PluginServices services) {
-        client = services.client();
-
-        DynamicSynonymTokenFilterFactory.client = client;
-        return Collections.emptyList();
+        DynamicSynonymTokenFilterFactory.client = services.client();;
+        return super.createComponents(services);
     }
 
 
     @Override
     public Map<String, AnalysisProvider<TokenFilterFactory>> getTokenFilters() {
         Map<String, AnalysisProvider<TokenFilterFactory>> extra = new HashMap<>();
-        extra.put("dynamic_synonym", requiresAnalysisSettings((indexSettings, env, name, settings) -> new DynamicSynonymTokenFilterFactory(indexSettings, env, name, settings)));
-        extra.put("dynamic_synonym_graph", requiresAnalysisSettings((indexSettings, env, name, settings) -> new DynamicSynonymGraphTokenFilterFactory(indexSettings, env, name, settings)));
+        extra.put("dynamic_synonym", requiresAnalysisSettings((indexSettings, env, name, settings) -> new DynamicSynonymTokenFilterFactory(env, name, settings)));
+        extra.put("dynamic_synonym_graph", requiresAnalysisSettings((indexSettings, env, name, settings) -> new DynamicSynonymGraphTokenFilterFactory(env, name, settings)));
         return extra;
     }
 
